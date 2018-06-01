@@ -1,0 +1,39 @@
+
+    model{
+    
+    # priors:
+    for(j in 1:nb.factors)
+    {
+    beta[j] ~ dnorm(0.0, 1.0E-6)
+    }
+    
+    # residuals, same for every groups so far
+    sigma ~ dunif(0,100)
+    tau.e <- 1/(sigma*sigma)
+    
+    # random effect
+    tau.u =  pow(sigma.u, -2)
+    sigma.u ~ dunif(0,100)
+    
+    # likelihood:
+       
+    for (i in 1:nb_tanks){
+    u[i] ~ dnorm(0, tau.u)
+    }
+    
+    # Then, main effects:
+    for (j in 1:N){
+    mean[j] = beta %*% X[j,] + u[id[j]]
+    # where X is the model matrix expressing: mean[j] = beta[1] + beta[2]*voisin + beta[3]*herbi + beta[4]*voisin*herbi
+    # usually, the simple model.matrix() function leads to the correct result (at least in 2x2 design)
+    # id[j] defines the tank individual j belongs to 
+    # u[id[j]] adds the random effect of the repeated measure (how individuals departs from the mean value of the specific tank) 
+    # so, at he end, the model is: 
+    # mean[j] = beta[1] + beta[2]*voisin + beta[3]*herbi + beta[4]*voisin*herbi + random.effect
+    # thus it is in the specific case of random intercept only
+    
+    # then:
+    y[j] ~ dnorm(mean[j], tau.e)
+    }
+    
+    }

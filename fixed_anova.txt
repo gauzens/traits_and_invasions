@@ -1,0 +1,26 @@
+
+  model
+    {
+      # priors
+      sigma ~ dunif(0,100)
+      tau.e <- 1/(sigma*sigma)
+      
+      # nb.factors: 
+      for(j in 1:nb.factors)
+      {
+        beta[j] ~ dnorm(0.006, 1.0E-6)
+      }
+      
+      # likelihood
+      for(i in 1:N)
+      {
+        # here X is the design matrix of the model 
+        # model.matrix( ~ fact1 * fact2 )
+        # so model is: mean[j] = beta[1] + beta[2]*voisin + beta[3]*herbi + beta[4]*voisin*herbi
+        mean[i] = beta[] %*% X[i,]
+        y[i] ~ dnorm(mean[i], tau.e)
+      }
+    
+    }
+    
+    
