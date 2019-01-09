@@ -1,0 +1,85 @@
+################################################
+######### effect of claw removal ###############
+################################################
+
+
+
+
+####################
+###### Egeria ######
+####################
+
+###nb.fragments
+
+pvalue with claws vs without claws
+[1] 0.3465
+
+pvalue without claws vs temoin
+[1] 0.05025
+
+pvalue with claws vs temoin
+[1] 0.00425
+
+###LDMC
+
+pvalue with claws vs without claws
+[1] 0.4435
+
+pvalue without claws vs temoin
+[1] 0.4435
+
+pvalue with claws vs temoin
+[1] 0.504
+
+####################
+###### Jussie ######
+####################
+
+###nb.fragments
+
+pvalue with claws vs without claws
+[1] 0.02
+
+pvalue without claws vs temoin
+[1] 0.02375
+
+pvalue with claws vs temoin
+[1] 0.00075
+
+###LDMC
+
+pvalue with claws vs without claws
+[1] 0.44725
+
+pvalue without claws vs temoin
+[1] 0.44725
+
+pvalue with claws vs temoin
+[1] 0.504
+
+####################
+###### Mspi ######
+####################
+
+###nb.fragments
+
+pvalue with claws vs without claws
+[1] 0.48625
+
+pvalue without claws vs temoin
+[1] 0.504
+
+pvalue with claws vs temoin
+[1] 0.48625
+
+###LDMC
+
+pvalue with claws vs without claws
+[1] 0.42875
+
+pvalue without claws vs temoin
+[1] 0.42875
+
+pvalue with claws vs temoin
+[1] 0.504
+

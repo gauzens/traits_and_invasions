@@ -5,52 +5,7 @@ setwd('/homes/bg33novu/projects/Lise_ecrevisses/bayesians')
 rm(list = ls())
 library(R2jags)
 
-plot.residuals = function(values, design, result){
-  predicted = design %*% result
-  resids = values - predicted
-  resids = (resids - mean(resids, na.rm = TRUE)) / sd(resids, na.rm = TRUE)
-  plot(resids ~ predicted, ylab = 'Standardized residuals', xlab = 'Predicted values')
-}
-
-
-std.res = function(model){
-  return((model$residuals - mean(model$residuals))/sd(model$residuals))
-}
-
-p.val = function(vec){
-  mean.val = mean(vec)
-  if (mean.val > 0){
-    p.value = length(vec[vec<0])/length(vec)
-  }else{
-    p.value = length(vec[vec>0])/length(vec)
-  }
-  return(p.value)
-}
-
-simple.effects = function(a, b, c){
-  cat('---------- Simple effects: ---------\n')
-  cat(deparse(substitute(a)), ': ', p.val(a), '\n')
-  cat(deparse(substitute(b)), ': ', p.val(b), '\n')
-  cat(deparse(substitute(c)), ': ', p.val(c), '\n')
-  
-  cat('------------------------------------\n')
-}
-
-pairwise.comps = function(means){
-  cat('---------- Pairwise comparisons: ---------\n')
-  for (i in 1:dim(means)[2]){
-    if (i<dim(means)[2]){
-      for (j in (i+1):dim(means)[2]){
-        cat(names(means)[i], ' - ', names(means)[j],': ', format(p.val(means[,i] - means[,j]), digits = 6), '\n')
-      }
-    }
-  }
-  cat('------------------------------------------\n')
-}
-
-
-
-
+source('/homes/bg33novu/projects/Lise_ecrevisses/traits_and_invasions/pval.functions.R')
 
 rm(list = setdiff(ls(), lsf.str()))
 tab = read.csv('/homes/bg33novu/projects/Lise_ecrevisses/data_leaves.csv', header = T)

@@ -3,46 +3,13 @@
 #######################################################################
 
 
-setwd('/homes/bg33novu/projects/Lise_ecrevisses/bayesians')
+setwd('/homes/bg33novu/projects/Lise_ecrevisses/traits_and_invasions')
 rm(list = ls())
 
 library(R2jags)
 library(car)
+source('/homes/bg33novu/projects/Lise_ecrevisses/traits_and_invasions/pval.functions.R')
 
-std.res = function(model){
-  return((model$residuals - mean(model$residuals))/sd(model$residuals))
-}
-
-p.val = function(vec){
-  mean.val = mean(vec)
-  if (mean.val > 0){
-    p.value = length(vec[vec<0])/length(vec)
-  }else{
-    p.value = length(vec[vec>0])/length(vec)
-  }
-  return(p.value)
-}
-
-simple.effects = function(a, b, c){
-  cat('---------- Simple effects: ---------\n')
-  cat(deparse(substitute(a)), ': ', p.val(a), '\n')
-  cat(deparse(substitute(b)), ': ', p.val(b), '\n')
-  cat(deparse(substitute(c)), ': ', p.val(c), '\n')
-  
-  cat('------------------------------------\n')
-}
-
-pairwise.comps = function(means){
-  cat('---------- Pairwise comparisons: ---------\n')
-  for (i in 1:dim(means)[2]){
-    if (i<dim(means)[2]){
-      for (j in (i+1):dim(means)[2]){
-        cat(names(means)[i], ' - ', names(means)[j],': ', format(p.val(means[,i] - means[,j]), digits = 6), '\n')
-      }
-    }
-  }
-  cat('------------------------------------------\n')
-}
 
 plot.residuals = function(values, design, result){
   predicted = design %*% result
@@ -93,7 +60,7 @@ params = c("beta")
 model.fit.1 <- jags.parallel(data = data,
                              model.file = "fixed_glm.txt",
                              parameters.to.save = params,
-                             n.chains = 3,
+                             n.chains = 4,
                              n.iter = 100000,
                              n.burnin = 50000,
                              # n.iter = 500,
@@ -147,6 +114,9 @@ pairwise.comps(means)
 mean(mu.herbi)
 mean(mu.voisin)
 mean(Interaction)
+
+mu.herbi.egeria = 0.5*(E.JU + E.MS) - 0.5*(T.JU + T.MS)
+save(mu.herbi.egeria, file = 'egeria')
 
 detach(egeria)
 
@@ -230,6 +200,9 @@ pairwise.comps(means)
 mean(mu.herbi)
 mean(mu.voisin)
 mean(Interaction)
+
+mu.herbi.jussie = 0.5*(E.EG + E.MS) - 0.5*(T.EG + T.MS)
+save(mu.herbi.jussie, file = 'jussie')
 
 detach(Jussie)
 
@@ -346,7 +319,7 @@ model.fit.2 <- jags.parallel(data = data2,
                              model.file = "fixed_glm.txt",
                              parameters.to.save = params,
                              n.chains = 4,
-                             n.iter = 200000,
+                             n.iter = 100000,
                              n.burnin = 50000,
                              DIC = FALSE)
 
@@ -391,7 +364,30 @@ mean(mu.herbi2)
 mean(mu.voisin2)
 mean(Interaction2)
 
+mu.herbi.Mspi = 0.5*(E.JU + E.EG) - 0.5*(T.JU + T.EG)
 
 detach(MSpi)
+
+load('egeria')
+load('jussie')
+
+### egeria jussie
+mean(mu.herbi.egeria) - mean(mu.herbi.jussie)
+p.val(mu.herbi.egeria - mu.herbi.jussie)
+
+### egeria mspi
+mean(mu.herbi.egeria) - mean(mu.herbi.Mspi)
+p.val(mu.herbi.egeria - mu.herbi.Mspi)
+
+
+#### jussie mspi
+mean(mu.herbi.jussie) - mean(mu.herbi.Mspi)
+p.val(mu.herbi.jussie - mu.herbi.Mspi)
+
+
+
+
+
+
 
 

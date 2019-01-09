@@ -7,52 +7,8 @@ library(car)
 
 rm(list = ls())
 
-plot.residuals = function(values, design, result){
-  predicted = design %*% result
-  resids = values - predicted
-  resids = (resids - mean(resids, na.rm = TRUE)) / sd(resids, na.rm = TRUE)
-  plot(resids ~ predicted, ylab = 'Standardized residuals', xlab = 'Predicted values')
-}
 
-
-std.res = function(model){
-  return((model$residuals - mean(model$residuals))/sd(model$residuals))
-}
-
-p.val = function(vec){
-  mean.val = mean(vec)
-  if (mean.val > 0){
-    p.value = length(vec[vec<0])/length(vec)
-  }else{
-    p.value = length(vec[vec>0])/length(vec)
-  }
-  return(p.value)
-}
-
-simple.effects = function(a, b, c){
-  cat('---------- Simple effects: ---------\n')
-  cat(deparse(substitute(a)), ': ', p.val(a), '\n')
-  cat(deparse(substitute(b)), ': ', p.val(b), '\n')
-  cat(deparse(substitute(c)), ': ', p.val(c), '\n')
-  
-  cat('------------------------------------\n')
-}
-
-pairwise.comps = function(means){
-  cat('---------- Pairwise comparisons: ---------\n')
-  for (i in 1:dim(means)[2]){
-    if (i<dim(means)[2]){
-      for (j in (i+1):dim(means)[2]){
-        cat(names(means)[i], ' - ', names(means)[j],': ', format(p.val(means[,i] - means[,j]), digits = 6), '\n')
-      }
-    }
-  }
-  cat('------------------------------------------\n')
-}
-
-
-
-
+source('/homes/bg33novu/projects/Lise_ecrevisses/traits_and_invasions/pval.functions.R')
 rm(list = setdiff(ls(), lsf.str()))
 tab = read.csv('/homes/bg33novu/projects/Lise_ecrevisses/data_leaves.csv', header = T)
 
@@ -507,96 +463,6 @@ mean(mu.herbi)
 mean(mu.voisin)
 mean(Interaction)
 
-detach(Mspi)
-
-### removing outlier 10
-
-rm(list = setdiff(ls(), lsf.str()))
-tab = read.csv('/homes/bg33novu/projects/Lise_ecrevisses/data_leaves.csv', header = T)
-
-outliers = 10
-Mspi = tab[tab$sps == 'Mspi', ]
-Mspi = Mspi[-outliers, ]
-attach(Mspi)
-voisin = droplevels(voisin)
-herbi = droplevels(herbi)
-design = model.matrix( ~  herbi * voisin)
-colSums(design)
-
-boxplot(LDMC ~ herbi * voisin)
-boxplot(log10(LDMC) ~ herbi * voisin)
-
-
-boxplot(log10(LDMC) ~ voisin*ttt)
-points(tapply(log10(LDMC), interaction(herbi,voisin), mean, na.rm = TRUE), col = 'red')
-points(interaction(herbi,voisin), log10(LDMC))
-model = lm(log10(LDMC) ~ herbi * voisin)
-# plot(model)
-# plot(std.res(model) ~ model$fitted.values)
-# weigths = poidsEcrevisse
-model = lm(LDMC ~ herbi * voisin)
-# plot(model)
-
-cooks = cooks.distance(model)
-hist(cooks, nclass = 20)
-# influncial points: greater than 6 times mean of cooks:
-cooks[cooks > 6*mean(cooks)]
-# corresponding plots: 
-plot(cooks)
-abline(h=6*mean(cooks))
-
-# test for outliers:
-library(car)
-outlierTest(model)
-
-
-summary(lm(LDMC[weigths != 0] ~ weigths[weigths != 0]))
-# no effect of crayfisch bodymass 
-
-factors = as.numeric(interaction(voisin,herbi))
-tanks = paste('t', ue, sep = '')
-tanks = as.numeric(as.factor(as.character(ue)))
-nb_tanks = max(tanks)
-data = list(y = log10(LDMC), X = design, N = length(LDMC), nb.factors = ncol(design), id.factor = factors, nb_tanks = nb_tanks, id = tanks)
-params = c("beta")
-model.fit.1 <- jags.parallel(data = data,
-                             model.file = "repeated_glm.txt", #repeated_anova.txt
-                             # model.file = "repeated_anova.txt",
-                             parameters.to.save = params,
-                             n.chains = 4,
-                             n.iter = 200000,
-                             n.burnin = 100000,
-                             DIC = FALSE)
-
-
-plot(as.mcmc(model.fit.1))
-summary = summary(as.mcmc(model.fit.1))
-summary$statistics
-results = as.matrix(as.mcmc(model.fit.1))
-head(results)
-
-E.EG = results[,1]
-T.EG = results[,1] + results[,2]
-E.JU = results[,1] + results[,3]
-T.JU = results[,1] + results[,2]  + results[,3]  + results[,4]
-
-means = cbind(E.EG, T.EG, E.JU, T.JU)
-names(means) = c('E.EG', 'T.EG', 'E.JU', 'T.JU')
-predicted = colMeans(means)
-colMeans(means)
-tapply(log10(LDMC), interaction(herbi,voisin), mean, na.rm = TRUE)
-
-boxplot(log10(LDMC) ~ ttt*voisin)
-points(tapply(log10(LDMC), interaction(herbi,voisin), mean, na.rm = TRUE), col = 'red')
-points(c(predicted[1], predicted[2], predicted[3], predicted[4]), col = 'blue')
-
-# effet interaction:
-mu.herbi = 0.5*(T.JU + T.EG) - 0.5*(E.JU + E.EG)
-mu.voisin = 0.5*(E.JU + T.JU) - 0.5*(T.EG + E.EG)
-
-Interaction = results[,4]
-simple.effects(mu.herbi, mu.voisin, Interaction)
-pairwise.comps(means)
 
 detach(Mspi)
 
